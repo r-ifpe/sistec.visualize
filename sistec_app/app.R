@@ -22,6 +22,24 @@ ui <- fluidPage(
                             )
                         )
                ),
+               tabPanel("Curso",
+                        sidebarLayout(
+                            sidebarPanel(width = 3,
+                                         selectInput("situacao_curso",
+                                                     "Situação:",
+                                                     choices = dados_campus$situacao),
+                                         selectInput("campus_curso",
+                                                     "Campus:",
+                                                     choices = dados_campus$campus),
+                                         selectInput("ano_curso",
+                                                     "Ano:",
+                                                     choices = dados_campus$ano)
+                            ),
+                            mainPanel(
+                                plotOutput("curso_plot")
+                            )
+                        )
+               ),
                tabPanel("Tipo do Curso",
                         sidebarLayout(
                             sidebarPanel(width = 3,
@@ -40,7 +58,6 @@ ui <- fluidPage(
                             )
                         )
                )
-
     )
 )
 
@@ -52,6 +69,14 @@ server <- function(input, output) {
                            dados_campus$contagem_campus_ano,
                            input$ano_campus,
                            input$situacao_campus)
+    })
+
+    output$curso_plot <- renderPlot({
+        plot_sistec_curso(dados_campus$dados,
+                          dados_campus$contagem_campus_ano_curso,
+                          input$ano_curso,
+                          input$campus_curso,
+                          input$situacao_curso)
     })
 
     output$tipo_plot <- renderPlot({
