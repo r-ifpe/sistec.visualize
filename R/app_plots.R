@@ -18,6 +18,28 @@ plot_sistec_campus <- function(x, qtd_campus, ano, situacao){
     coord_flip()
 }
 
+# plot para a aba CURSO
+plot_sistec_curso <- function(x, qtd_campus, ano, campus, situacao){
+  x %>%
+    filter(Ano == ano, Campus == campus, `Situação` == situacao) %>%
+    group_by(Campus, Ano, Curso) %>%
+    tally() %>%
+    left_join(qtd_campus,
+              by = c("Campus" = "Campus",
+                     "Ano" = "Ano",
+                     "Curso" = "Curso")) %>%
+    mutate(Porcentagem = round(100 * n /qtd_campus, 2))%>%
+    arrange(-Porcentagem) %>%
+    ungroup() %>%
+    mutate(Curso = factor(Curso, levels = .$Curso)) %>%
+    ggplot() +
+    aes(x = Curso, y = Porcentagem) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(label = Porcentagem),
+              hjust = -0.1) +
+    coord_flip()
+}
+
 # plot para a aba TIPO DO CURSO
 plot_sistec_tipo <- function(x, qtd_campus, ano, campus, situacao){
   x %>%
