@@ -11,7 +11,8 @@ aba_campus <- function(x){
     dplyr::transmute(`Situação` = `Situação.Matricula`,
                      Ano = substring(Dt.Data.Inicio, 7),
                      Campus = Municipio,
-                     `Tipo do Curso` = Tipo.Curso)
+                     `Tipo do Curso` = Tipo.Curso,
+                     Curso = No.Curso)
 
   # inserir contagem em cada campus por ano
   contagem_campus_ano <- dados %>%
@@ -23,6 +24,11 @@ aba_campus <- function(x){
     dplyr::group_by(Campus, Ano, `Tipo do Curso`) %>%
     dplyr::summarise(qtd_campus = n())
 
+  # contagem por campus e ano da quantidade de alunos nos cursos
+  contagem_campus_ano_curso <- dados %>%
+    dplyr::group_by(Campus, Ano, Curso) %>%
+    dplyr::summarise(qtd_campus = n())
+
   situacao <- dados$`Situação` %>% unique()
   campus <- dados$Campus %>% unique() %>% sort()
 
@@ -32,6 +38,7 @@ aba_campus <- function(x){
 
   list(dados = dados, contagem_campus_ano = contagem_campus_ano,
        contagem_campus_ano_tipo = contagem_campus_ano_tipo,
+       contagem_campus_ano_curso = contagem_campus_ano_curso,
        situacao = situacao, ano = ano, campus = campus)
 }
 
