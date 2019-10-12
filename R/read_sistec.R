@@ -4,9 +4,8 @@ read_sistec <- function(path){
   openxlsx::read.xlsx(path, 1)
 }
 
-#' @importFrom dplyr %>%
 #' @export
-aba_campus <- function(x){
+dados_app <- function(x){
   dados <- x %>%
     dplyr::transmute(`Situação` = `Situação.Matricula`,
                      Ano = substring(Dt.Data.Inicio, 7),
@@ -30,11 +29,15 @@ aba_campus <- function(x){
     dplyr::summarise(qtd_campus = n())
 
   situacao <- dados$`Situação` %>% unique()
-  campus <- dados$Campus %>% unique() %>% sort()
+
+  # campus disponiveis
+  campus_erro <- c("PAGA", "PRONATEC", "GRATUITO") # erro de digitaçao
+  campus <- dados$Campus %>% unique()
+  campus <- campus[!campus %in% campus_erro] %>% sort()
 
   ano <- dados$Ano %>%
     unique() %>%
-    sort(decreasing = TRUE, na.last = NA)
+    sort(na.last = NA)
 
   list(dados = dados, contagem_campus_ano = contagem_campus_ano,
        contagem_campus_ano_tipo = contagem_campus_ano_tipo,
