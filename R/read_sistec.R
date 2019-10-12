@@ -4,14 +4,14 @@ read_sistec <- function(path){
   openxlsx::read.xlsx(path, 1)
 }
 
-#' @importFrom dplyr %>%
 #' @export
-aba_campus <- function(x){
+dados_app <- function(x){
   dados <- x %>%
     dplyr::transmute(`Situação` = `Situação.Matricula`,
                      Ano = substring(Dt.Data.Inicio, 7),
                      Campus = Municipio,
-                     `Tipo do Curso` = Tipo.Curso)
+                     `Tipo do Curso` = Tipo.Curso,
+                     Curso = No.Curso)
 
   # inserir contagem em cada campus por ano
   contagem_campus_ano <- dados %>%
@@ -23,15 +23,25 @@ aba_campus <- function(x){
     dplyr::group_by(Campus, Ano, `Tipo do Curso`) %>%
     dplyr::summarise(qtd_campus = n())
 
+  # contagem por campus e ano da quantidade de alunos nos cursos
+  contagem_campus_ano_curso <- dados %>%
+    dplyr::group_by(Campus, Ano, Curso) %>%
+    dplyr::summarise(qtd_campus = n())
+
   situacao <- dados$`Situação` %>% unique()
-  campus <- dados$Campus %>% unique() %>% sort()
+
+  # campus disponiveis
+  campus_erro <- c("PAGA", "PRONATEC", "GRATUITO") # erro de digitaçao
+  campus <- dados$Campus %>% unique()
+  campus <- campus[!campus %in% campus_erro] %>% sort()
 
   ano <- dados$Ano %>%
     unique() %>%
-    sort(decreasing = TRUE, na.last = NA)
+    sort(na.last = NA)
 
   list(dados = dados, contagem_campus_ano = contagem_campus_ano,
        contagem_campus_ano_tipo = contagem_campus_ano_tipo,
+       contagem_campus_ano_curso = contagem_campus_ano_curso,
        situacao = situacao, ano = ano, campus = campus)
 }
 
