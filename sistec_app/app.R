@@ -1,10 +1,16 @@
-
-sistec <- read_sistec("sistec.xlsx") %>%
-   sistec_tidy()
-dados_campus <- dados_app(sistec)
-
 library(shiny)
 library(shinyWidgets)
+
+
+dados_app <- read_sistec("sistec.xlsx") %>%
+   dados_app()
+
+# inputs
+situacao <- dados_app$situacao
+ano <- dados_app$ano
+campus <- dados_app$campus
+
+
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -14,14 +20,18 @@ ui <- fluidPage(
                             sidebarPanel(width = 3,
                                          selectInput("situacao_campus",
                                                      "Situação:",
-                                                     choices = dados_campus$situacao),
+                                                     choices = situacao),
                                          sliderTextInput("ano_campus",
                                                      "Ano:",
-                                                     choices = dados_campus$ano,
+                                                     choices = ano,
                                                      selected = c("2010", "2019"))
                             ),
                             mainPanel(
-                                plotOutput("campus_plot")
+                                tabsetPanel(
+                                    tabPanel("Situação", plotOutput("campus_plot")
+                                    )
+                                )
+
                             )
                         )
                ),
@@ -30,13 +40,13 @@ ui <- fluidPage(
                             sidebarPanel(width = 3,
                                          selectInput("situacao_curso",
                                                      "Situação:",
-                                                     choices = dados_campus$situacao),
+                                                     choices = situacao),
                                          selectInput("campus_curso",
                                                      "Campus:",
-                                                     choices = dados_campus$campus),
+                                                     choices = campus),
                                          sliderTextInput("ano_curso",
                                                          "Ano:",
-                                                         choices = dados_campus$ano,
+                                                         choices = ano,
                                                          selected = c("2010", "2019"))
                             ),
                             mainPanel(
@@ -49,20 +59,43 @@ ui <- fluidPage(
                             sidebarPanel(width = 3,
                                          selectInput("situacao_tipo",
                                                      "Situação:",
-                                                     choices = dados_campus$situacao),
+                                                     choices = situacao),
                                          selectInput("campus_tipo",
                                                      "Campus:",
-                                                     choices = dados_campus$campus),
+                                                     choices = campus),
                                          sliderTextInput("ano_tipo",
                                                          "Ano:",
-                                                         choices = dados_campus$ano,
+                                                         choices = ano,
                                                          selected = c("2010", "2019"))
                             ),
                             mainPanel(
                                 plotOutput("tipo_plot")
                             )
                         )
-               )
+               # ),
+               # ####################### FIX ME ###################
+               # tabPanel("Perfil",
+               #          sidebarLayout(
+               #              sidebarPanel(width = 3,
+               #                           selectInput("situacao_perfil",
+               #                                       "Situação:",
+               #                                       choices = dados_app$situacao),
+               #                           conditionalPanel(
+               #                               condition = "input.plotType == 'hist'"
+               #                           ),
+               #                           selectInput("campus_tipo",
+               #                                       "Campus:",
+               #                                       choices = dados_app$campus),
+               #                           sliderTextInput("ano_tipo",
+               #                                           "Ano:",
+               #                                           choices = dados_app$ano,
+               #                                           selected = c("2010", "2019"))
+               #              ),
+               #              mainPanel(
+               #                  plotOutput("tipo_plot")
+               #              )
+               #          )
+                )
     )
 )
 
@@ -70,23 +103,23 @@ ui <- fluidPage(
 server <- function(input, output) {
 
     output$campus_plot <- renderPlot({
-        sistec:::plot_sistec_campus(dados_campus$dados,
-                           dados_campus$contagem_campus_ano,
+        sistec:::plot_sistec_campus(dados_app$dados,
+                           dados_app$contagem_campus_ano,
                            input$ano_campus,
                            input$situacao_campus)
     })
 
     output$curso_plot <- renderPlot({
-        sistec:::plot_sistec_curso(dados_campus$dados,
-                          dados_campus$contagem_campus_ano_curso,
+        sistec:::plot_sistec_curso(dados_app$dados,
+                          dados_app$contagem_campus_ano_curso,
                           input$ano_curso,
                           input$campus_curso,
                           input$situacao_curso)
     })
 
     output$tipo_plot <- renderPlot({
-        sistec:::plot_sistec_tipo(dados_campus$dados,
-                         dados_campus$contagem_campus_ano_tipo,
+        sistec:::plot_sistec_tipo(dados_app$dados,
+                         dados_app$contagem_campus_ano_tipo,
                          input$ano_tipo,
                          input$campus_tipo,
                          input$situacao_tipo)
