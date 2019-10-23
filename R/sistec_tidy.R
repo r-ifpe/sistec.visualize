@@ -29,3 +29,13 @@ inputs_app <- function(x, erro = ""){
   x <- x[!x %in% erro]
   sort(x, na.last = NA)
 }
+
+# função para criar as contagens de alunos que serão
+# passadas para dados_app
+#' @importFrom dplyr syms
+contagem_alunos <- function(x, variaveis){
+  x %>%
+    dplyr::group_by(!!!syms(variaveis)) %>%
+    dplyr::summarise(qtd_campus = n())
+}
+
