@@ -1,24 +1,41 @@
-#' @export
-sistec_tidy <- function(x){
-
+variavel_situacao <- function(x){
   #nomes que aparecem no sistec
   erro_cadastro <- c("não", "Federal", "08/2013")
   abandono <- c("DESLIGADO", "TRANSF_EXT", "REPROVADA")
 
-  x %>%
-    dplyr::select(`Situação.Matricula`,
-                     Dt.Data.Inicio,
-                     Municipio,
-                     Tipo.Curso,
-                     No.Curso) %>%
-    corrigir_situacao("ERRO", erro_cadastro) %>%
-    corrigir_situacao("ABANDONO", abandono)
+  x <- ifelse(x %in% erro_cadastro, "ERRO", x)
+  x <- ifelse(x %in% abandono, "ABANDONO", x)
+  x
 }
 
-corrigir_situacao <- function(x, nova_situacao, situacao_cadastro){
-  x %>%
-    dplyr::mutate(`Situação.Matricula` = ifelse(
-      `Situação.Matricula` %in% situacao_cadastro,
-      nova_situacao,
-      `Situação.Matricula`))
+variavel_ano <- function(x){
+  # o ano começa na setima posição
+  substring(x, 7)
 }
+
+#' @importFrom lubridate decimal_date dmy
+variavel_idade <- function(x){
+  floor(decimal_date(Sys.Date()) - decimal_date(dmy(x)))
+}
+
+#' @importFrom lubridate decimal_date dmy
+variavel_duracao_do_curso <- function(fim,inicio){
+  decimal_date(dmy(fim)) - decimal_date(dmy(inicio))
+}
+
+# inputs como aparecerão no app
+inputs_app <- function(x, erro = ""){
+  x <- unique(x)
+  x <- x[!x %in% erro]
+  sort(x, na.last = NA)
+}
+
+# função para criar as contagens de alunos que serão
+# passadas para dados_app
+#' @importFrom dplyr syms
+contagem_alunos <- function(x, variaveis){
+  x %>%
+    dplyr::group_by(!!!syms(variaveis)) %>%
+    dplyr::summarise(qtd_campus = n())
+}
+
