@@ -33,7 +33,11 @@ inputs_app <- function(x, erro = ""){
 # função para criar as contagens de alunos que serão
 # passadas para dados_app
 #' @importFrom dplyr syms
-contagem_alunos <- function(x, variaveis){
+contagem_alunos <- function(x, variaveis = NULL){
+
+  # todas as contagens utilizam campus e anos
+  variaveis <- c("Campus", "Ano", variaveis)
+
   x %>%
     dplyr::group_by(!!!syms(variaveis)) %>%
     dplyr::summarise(qtd_campus = n())
