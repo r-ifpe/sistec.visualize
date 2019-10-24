@@ -1,6 +1,6 @@
 library(shiny)
 library(shinyWidgets)
-library(dplyr)
+library(dplyr, quietly = TRUE, warn.conflicts = FALSE)
 library(ggplot2)
 
 
@@ -78,30 +78,35 @@ ui <- fluidPage(
                          sidebarLayout(
                              sidebarPanel(width = 3,
                                           radioGroupButtons(
-                                              inputId = "perfil_sexo_analise",
+                                              inputId = "perfil_analise",
                                               label = "Análise por:",
                                               choices = c("CAMPUS", "CURSO"),
                                               justified = TRUE
                                               ),
-                                          selectInput("perfil_sexo_situacao",
+                                          selectInput("perfil_situacao",
                                                       "Situação:",
                                                       choices = situacao),
-                                          selectInput("perfil_sexo_campus",
+                                          selectInput("perfil_campus",
                                                       "Campus:",
                                                       choices = campus),
                                           conditionalPanel(
-                                              condition = "input.perfil_sexo_analise == 'CURSO'",
-                                              selectInput("perfil_sexo_curso",
+                                              condition = "input.perfil_analise == 'CURSO'",
+                                              selectInput("perfil_curso",
                                                           "Curso:",
                                                           choices = NULL)
                                           ),
-                                          sliderTextInput("perfil_sexo_ano",
+                                          sliderTextInput("perfil_ano",
                                                           "Ano:",
                                                           choices = ano,
                                                           selected = c("2010", "2019"))
                              ),
                              mainPanel(
-                                 plotOutput("perfil_sexo_plot")
+                                 tabsetPanel(
+                                     tabPanel("Sexo", plotOutput("perfil_sexo_plot")),
+                                     tabPanel("Cota", plotOutput("perfil_cota_plot")),
+                                     tabPanel("Renda", plotOutput("perfil_renda_plot"))
+                                     )
+
                              )
                          )
                 )
@@ -135,13 +140,14 @@ server <- function(input, output, session) {
 
     })
 
-    observeEvent(input$perfil_sexo_analise, {
-        if(input$perfil_sexo_analise == "CURSO"){
-            observeEvent(input$perfil_sexo_campus,
+    # inputs da aba de perfil
+    observeEvent(input$perfil_analise, {
+        if(input$perfil_analise == "CURSO"){
+            observeEvent(input$perfil_campus,
                          updateSelectInput(session,
-                                           "perfil_sexo_curso",
+                                           "perfil_curso",
                                            choices = campus_curso %>%
-                                               filter(Campus == input$perfil_sexo_campus) %>%
+                                               filter(Campus == input$perfil_campus) %>%
                                                pull(Curso))
             )
         }
@@ -149,23 +155,57 @@ server <- function(input, output, session) {
 
     output$perfil_sexo_plot <- renderPlot({
 
-        if(input$perfil_sexo_analise == "CAMPUS"){
+        if(input$perfil_analise == "CAMPUS"){
             contagem <- dados_app$contagem_campus_ano_sexo
         } else{
             contagem <- dados_app$contagem_campus_ano_curso_sexo
         }
 
-        sistec:::plot_sistec_perfil_sexo(dados_app$dados,
-                                         contagem,
-                                         input$perfil_sexo_ano,
-                                         input$perfil_sexo_campus,
-                                         input$perfil_sexo_situacao,
-                                         input$perfil_sexo_curso,
-                                         input$perfil_sexo_analise)
-
+        sistec:::plot_sistec_perfil(dados_app$dados,
+                                    contagem,
+                                    input$perfil_ano,
+                                    input$perfil_campus,
+                                    input$perfil_situacao,
+                                    input$perfil_curso,
+                                    input$perfil_analise,
+                                    "Sexo")
     })
 
+    output$perfil_cota_plot <- renderPlot({
 
+        if(input$perfil_analise == "CAMPUS"){
+            contagem <- dados_app$contagem_campus_ano_cota
+        } else{
+            contagem <- dados_app$contagem_campus_ano_curso_cota
+        }
+
+        sistec:::plot_sistec_perfil(dados_app$dados,
+                                    contagem,
+                                    input$perfil_ano,
+                                    input$perfil_campus,
+                                    input$perfil_situacao,
+                                    input$perfil_curso,
+                                    input$perfil_analise,
+                                    "Cota")
+    })
+
+    output$perfil_renda_plot <- renderPlot({
+
+        if(input$perfil_analise == "CAMPUS"){
+            contagem <- dados_app$contagem_campus_ano_renda
+        } else{
+            contagem <- dados_app$contagem_campus_ano_curso_renda
+        }
+
+        sistec:::plot_sistec_perfil(dados_app$dados,
+                                    contagem,
+                                    input$perfil_ano,
+                                    input$perfil_campus,
+                                    input$perfil_situacao,
+                                    input$perfil_curso,
+                                    input$perfil_analise,
+                                    "Baixa Renda")
+    })
 }
 
 # Run the application

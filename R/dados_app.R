@@ -16,13 +16,15 @@ dados_app <- function(x){
                      )
 
   # contagens de alunos
-  contagem_campus_ano <- contagem_alunos(dados, c("Campus", "Ano"))
-  contagem_campus_ano_tipo <- contagem_alunos(dados, c("Campus", "Ano", "Tipo do Curso"))
-  contagem_campus_ano_curso <- contagem_alunos(dados, c("Campus", "Ano", "Curso"))
-  contagem_campus_ano_sexo <- contagem_alunos(dados, c("Campus", "Ano", "Sexo"))
-  contagem_campus_ano_curso_sexo <- contagem_alunos(dados, c("Campus", "Ano", "Curso", "Sexo"))
-  contagem_campus_ano_curso_renda <- contagem_alunos(dados, c("Campus", "Ano", "Curso", "Baixa Renda"))
-  contagem_campus_ano_curso_cota <- contagem_alunos(dados, c("Campus", "Ano", "Curso", "Cota"))
+  contagem_campus_ano <- contagem_alunos(dados)
+  contagem_campus_ano_tipo <- contagem_alunos(dados, "Tipo do Curso")
+  contagem_campus_ano_curso <- contagem_alunos(dados, "Curso")
+  contagem_campus_ano_sexo <- contagem_alunos(dados, "Sexo")
+  contagem_campus_ano_renda <-contagem_alunos(dados, "Baixa Renda")
+  contagem_campus_ano_cota <- contagem_alunos(dados, "Cota")
+  contagem_campus_ano_curso_sexo <- contagem_alunos(dados, c("Curso", "Sexo"))
+  contagem_campus_ano_curso_renda <- contagem_alunos(dados, c("Curso", "Baixa Renda"))
+  contagem_campus_ano_curso_cota <- contagem_alunos(dados, c("Curso", "Cota"))
 
   # inputs
   situacao <- inputs_app(dados$`Situação`, "ERRO")
@@ -33,6 +35,8 @@ dados_app <- function(x){
        contagem_campus_ano_tipo = contagem_campus_ano_tipo,
        contagem_campus_ano_curso = contagem_campus_ano_curso,
        contagem_campus_ano_sexo = contagem_campus_ano_sexo,
+       contagem_campus_ano_renda = contagem_campus_ano_renda,
+       contagem_campus_ano_cota = contagem_campus_ano_cota,
        contagem_campus_ano_curso_sexo = contagem_campus_ano_curso_sexo,
        contagem_campus_ano_curso_renda = contagem_campus_ano_curso_renda,
        contagem_campus_ano_curso_cota = contagem_campus_ano_curso_cota,
